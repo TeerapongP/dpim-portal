@@ -1,14 +1,16 @@
 "use client";
 
+import React from 'react';
 import { Menubar } from 'primereact/menubar';
 
 export default function DPIMNavbar() {
   const brand = (
     <div className="flex items-center">
-      {/* Font Awesome Icon with Tailwind equivalent of 'text-warning' and 'me-3' */}
-      <i className="fas fa-landmark fa-2x me-3 text-warning"></i>
+      {/* Exact Font Awesome classes as requested */}
+      <i className="fas fa-landmark fa-2x mr-3 text-[#ffc107]"></i>
+      
       <div className="flex flex-col text-white leading-tight">
-        <span className="font-bold text-lg sm:text-xl">
+        <span className="font-bold text-lg sm:text-xl tracking-wide">
           DPIM Portal
         </span>
         <span className="text-[10px] sm:text-[13px] font-light opacity-90">

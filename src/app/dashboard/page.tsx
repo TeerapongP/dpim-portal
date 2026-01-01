@@ -4,7 +4,6 @@ import { useState } from 'react';
 import Navbar from '@/components/DPIMNavbar';
 import { Card } from 'primereact/card';
 import { Button } from 'primereact/button';
-import { Chart } from 'primereact/chart';
 
 export default function DashboardPage() {
   const [user] = useState({
@@ -18,51 +17,6 @@ export default function DashboardPage() {
     console.log('Logging out...');
     // Redirect to login
     window.location.href = '/login';
-  };
-
-  // Sample chart data
-  const chartData = {
-    labels: ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน'],
-    datasets: [
-      {
-        label: 'ผู้ใช้งานระบบ',
-        data: [65, 59, 80, 81, 56, 55],
-        fill: false,
-        borderColor: '#10b981',
-        backgroundColor: '#10b981',
-        tension: 0.4
-      }
-    ]
-  };
-
-  const chartOptions = {
-    maintainAspectRatio: false,
-    aspectRatio: 0.6,
-    plugins: {
-      legend: {
-        labels: {
-          color: '#495057'
-        }
-      }
-    },
-    scales: {
-      x: {
-        ticks: {
-          color: '#495057'
-        },
-        grid: {
-          color: '#ebedef'
-        }
-      },
-      y: {
-        ticks: {
-          color: '#495057'
-        },
-        grid: {
-          color: '#ebedef'
-        }
-      }
-    }
   };
 
   return (
@@ -120,9 +74,15 @@ export default function DashboardPage() {
 
         {/* Main Content */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Chart */}
+          {/* Statistics Placeholder */}
           <Card title="สถิติการใช้งาน" className="h-96">
-            <Chart type="line" data={chartData} options={chartOptions} />
+            <div className="flex items-center justify-center h-64 bg-gray-100 rounded-lg">
+              <div className="text-center text-gray-500">
+                <i className="pi pi-chart-line text-4xl mb-4"></i>
+                <p>แผนภูมิสถิติการใช้งาน</p>
+                <p className="text-sm">จะแสดงข้อมูลเมื่อมีการเชื่อมต่อฐานข้อมูล</p>
+              </div>
+            </div>
           </Card>
 
           {/* Recent Activities */}

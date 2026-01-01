@@ -25,7 +25,8 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-.p-menubar {
-    background: transparent !important;
+.p-menubar, .p-menubar-start, .p-menuitem-content, .p-menuitem-link {
+    background-color: transparent !important;
     border: none !important;
+    box-shadow: none !important;
 }
