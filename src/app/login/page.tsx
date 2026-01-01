@@ -124,12 +124,12 @@ export default function LoginPage() {
       ...prev,
       [field]: value
     }));
-    
+
     // If unchecking "remember me", clear stored credentials
     if (field === 'remember' && !value) {
       localStorage.removeItem('dpim_remember_login');
     }
-    
+
     // Clear messages when user types
     if (error) setError('');
     if (success) setSuccess('');
@@ -141,9 +141,9 @@ export default function LoginPage() {
       {loading && (
         <div className="fixed inset-0 w-full h-full bg-white/90 backdrop-blur-md flex items-center justify-center" style={{ zIndex: 9999 }}>
           <div className="flex flex-col items-center gap-6">
-            <ProgressSpinner 
-              style={{ width: '80px', height: '80px' }} 
-              strokeWidth="3" 
+            <ProgressSpinner
+              style={{ width: '80px', height: '80px' }}
+              strokeWidth="3"
               fill="transparent"
               animationDuration="1.2s"
             />
@@ -228,12 +228,12 @@ export default function LoginPage() {
 
               <Button
                 type="submit"
+                label={loading ? "กำลังตรวจสอบ..." : "เข้าสู่ระบบ (Login)"}
+                icon={loading ? "pi pi-spin pi-spinner" : "pi pi-sign-in"}
                 disabled={loading}
                 className="w-full border-none p-3 sm:p-3.5 font-bold text-white rounded-lg transition-all duration-300 hover:brightness-110 active:scale-[0.98]"
                 style={{ backgroundColor: '#0b5232' }}
-              >
-                เข้าสู่ระบบ (Login)
-              </Button>
+              />
             </form>
 
             {/* Social Separator */}
