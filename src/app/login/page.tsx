@@ -1,10 +1,32 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from 'primereact/button';
 import { Checkbox } from 'primereact/checkbox';
 import { InputText } from 'primereact/inputtext';
 import { Password } from 'primereact/password';
+import { Message } from 'primereact/message';
+import { ProgressSpinner } from 'primereact/progressspinner';
+
+// Mock users database with encrypted passwords
+const MOCK_USERS = {
+  admin: {
+    username: 'admin_dpim_01',
+    password: 'Admin@2026!', // In real app, this would be hashed
+    role: 'admin',
+    name: 'ผู้ดูแลระบบ',
+    permissions: ['read', 'write', 'delete', 'manage_users']
+  },
+  user: {
+    username: 'dpim_user_001',
+    password: 'User123456', // In real app, this would be hashed
+    role: 'user',
+    name: 'ผู้ใช้ทั่วไป',
+    permissions: ['read']
+  }
+};
+
+const ENCRYPTION_KEY = 'te37xCn6UxdMEs0sb8/Ni6Dhra4LjP7eR+ZNbzkWebU=';
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
@@ -12,10 +34,89 @@ export default function LoginPage() {
     password: '',
     remember: false
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Load remembered credentials on component mount
+  useEffect(() => {
+    const rememberedData = localStorage.getItem('dpim_remember_login');
+    if (rememberedData) {
+      try {
+        const parsed = JSON.parse(rememberedData);
+        setFormData({
+          username: parsed.username ?? '',
+          password: parsed.password ?? '',
+          remember: true
+        });
+      } catch (err) {
+        // If parsing fails, clear the stored data
+        localStorage.removeItem('dpim_remember_login');
+      }
+    }
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Login attempt:', formData);
+    setLoading(true);
+    setError('');
+    setSuccess('');
+
+    try {
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Check credentials
+      const user = Object.values(MOCK_USERS).find(
+        u => u.username === formData.username && u.password === formData.password
+      );
+
+      if (!user) {
+        setError('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');
+        setLoading(false);
+        return;
+      }
+
+      // Create session token (mock)
+      const sessionData = {
+        user: {
+          username: user.username,
+          role: user.role,
+          name: user.name,
+          permissions: user.permissions
+        },
+        timestamp: new Date().toISOString(),
+        key: ENCRYPTION_KEY.substring(0, 8) + '...' // Show partial key for demo
+      };
+
+      // Store in localStorage (in real app, use secure httpOnly cookies)
+      localStorage.setItem('dpim_session', JSON.stringify(sessionData));
+
+      // Save login credentials if "remember me" is checked
+      if (formData.remember) {
+        localStorage.setItem('dpim_remember_login', JSON.stringify({
+          username: formData.username,
+          password: formData.password
+        }));
+      } else {
+        // Clear remembered credentials if "remember me" is unchecked
+        localStorage.removeItem('dpim_remember_login');
+      }
+
+      setSuccess(`เข้าสู่ระบบสำเร็จ! ยินดีต้อนรับ ${user.name} (${user.role})`);
+
+      // Keep loading state and redirect immediately
+      if (user.role === 'admin') {
+        window.location.href = '/dashboard?role=admin';
+      } else {
+        window.location.href = '/dashboard?role=user';
+      }
+
+    } catch (err) {
+      setError('เกิดข้อผิดพลาดในการเข้าสู่ระบบ');
+      setLoading(false);
+    }
+    // Don't set loading to false here - keep it true until page changes
   };
 
   const handleInputChange = (field: string, value: string | boolean) => {
@@ -23,10 +124,41 @@ export default function LoginPage() {
       ...prev,
       [field]: value
     }));
+    
+    // If unchecking "remember me", clear stored credentials
+    if (field === 'remember' && !value) {
+      localStorage.removeItem('dpim_remember_login');
+    }
+    
+    // Clear messages when user types
+    if (error) setError('');
+    if (success) setSuccess('');
   };
 
   return (
     <div className="relative min-h-screen flex flex-col font-sans">
+      {/* Full Page Loading Overlay */}
+      {loading && (
+        <div className="fixed inset-0 w-full h-full bg-white/90 backdrop-blur-md flex items-center justify-center" style={{ zIndex: 9999 }}>
+          <div className="flex flex-col items-center gap-6">
+            <ProgressSpinner 
+              style={{ width: '80px', height: '80px' }} 
+              strokeWidth="3" 
+              fill="transparent"
+              animationDuration="1.2s"
+            />
+            <div className="text-center">
+              <p className="text-[#0b5232] font-bold text-xl mb-2">
+                {success ? 'กำลังเข้าสู่หน้าหลัก' : 'กำลังเข้าสู่ระบบ'}
+              </p>
+              <p className="text-gray-600 text-sm">
+                {success ? 'กรุณารอสักครู่...' : 'กำลังตรวจสอบข้อมูล...'}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 1. Background Image Layer */}
       <div
         className="fixed inset-0 w-full h-full bg-cover bg-center bg-no-repeat z-0"
@@ -48,6 +180,15 @@ export default function LoginPage() {
             </div>
 
             <form className="space-y-4 sm:space-y-5" onSubmit={handleSubmit}>
+              {/* Error Message */}
+              {error && (
+                <Message severity="error" text={error} className="mb-4" />
+              )}
+
+              {/* Success Message */}
+              {success && (
+                <Message severity="success" text={success} className="mb-4" />
+              )}
               <div className="flex flex-col gap-1.5">
                 <span className="p-input-icon-left w-full">
                   <InputText
@@ -87,10 +228,12 @@ export default function LoginPage() {
 
               <Button
                 type="submit"
-                label="เข้าสู่ระบบ (Login)"
+                disabled={loading}
                 className="w-full border-none p-3 sm:p-3.5 font-bold text-white rounded-lg transition-all duration-300 hover:brightness-110 active:scale-[0.98]"
                 style={{ backgroundColor: '#0b5232' }}
-              />
+              >
+                เข้าสู่ระบบ (Login)
+              </Button>
             </form>
 
             {/* Social Separator */}
