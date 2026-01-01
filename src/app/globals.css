@@ -11,9 +11,112 @@
 
 /* DPIM Custom Properties */
 :root {
-  --dpim-green: #0c5e36;
+  --dpim-green: #0b5232;
   --dpim-gold: #ffc107;
-  --bg-overlay: rgba(12, 94, 54, 0.92);
+  --dpim-accent: #00b0e1;
+  --bg-overlay: rgba(11, 82, 50, 0.92);
+}
+
+/* Fix Password component width to match InputText */
+.p-password {
+  width: 100% !important;
+}
+
+.p-password .p-inputtext {
+  width: 100% !important;
+}
+
+/* Remove PrimeReact default styling for Password component */
+.p-password.p-component.p-inputwrapper.p-input-icon-right {
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  width: 100% !important;
+  display: block !important;
+}
+
+.p-password.p-component.p-inputwrapper.p-input-icon-right .p-inputtext {
+  width: 100% !important;
+}
+
+/* Reset all PrimeReact Password wrapper styles */
+.p-password {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  width: 100% !important;
+}
+
+.p-password .p-password-input {
+  width: 100% !important;
+}
+
+/* Override PrimeReact Button colors */
+.p-button {
+  background-color: var(--dpim-green) !important;
+  border-color: var(--dpim-green) !important;
+}
+
+.p-button:hover {
+  background-color: var(--dpim-green) !important;
+  border-color: var(--dpim-green) !important;
+}
+
+/* Input hover effects */
+.p-inputtext:hover {
+  border-color: var(--dpim-green) !important;
+}
+
+.p-password .p-inputtext:hover {
+  border-color: var(--dpim-green) !important;
+}
+
+/* Focus effects (already working but ensure consistency) */
+.p-inputtext:focus {
+  border-color: var(--dpim-green) !important;
+  box-shadow: 0 0 0 0.2rem rgba(11, 82, 50, 0.25) !important;
+}
+
+.p-password .p-inputtext:focus {
+  border-color: var(--dpim-green) !important;
+  box-shadow: 0 0 0 0.2rem rgba(11, 82, 50, 0.25) !important;
+}
+
+/* Checkbox hover and checked effects */
+.p-checkbox .p-checkbox-box:hover {
+  border-color: var(--dpim-green) !important;
+}
+
+.p-checkbox .p-checkbox-box.p-highlight {
+  background-color: var(--dpim-green) !important;
+  border-color: var(--dpim-green) !important;
+}
+
+.p-checkbox .p-checkbox-box.p-highlight:hover {
+  background-color: var(--dpim-green) !important;
+  border-color: var(--dpim-green) !important;
+}
+
+.p-checkbox:not(.p-checkbox-disabled) .p-checkbox-box:focus {
+  border-color: var(--dpim-green) !important;
+  box-shadow: 0 0 0 0.2rem rgba(11, 82, 50, 0.25) !important;
+}
+
+/* Override PrimeReact CSS variables for checkbox */
+.p-checkbox {
+  --p-checkbox-checked-background: var(--dpim-green);
+  --p-checkbox-checked-border-color: var(--dpim-green);
+  --p-checkbox-hover-border-color: var(--dpim-green);
+  --p-checkbox-focus-border-color: var(--dpim-green);
+}
+
+/* More specific overrides */
+.p-checkbox .p-checkbox-box.p-highlight,
+.p-checkbox .p-checkbox-box.p-highlight:not(.p-disabled):hover {
+  background: var(--dpim-green) !important;
+  border-color: var(--dpim-green) !important;
 }
 
 body {
