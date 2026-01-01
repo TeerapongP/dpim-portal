@@ -27,8 +27,9 @@ export const useAuth = () => {
 
       const data: AuthResponse = await response.json();
       
-      // Store token in localStorage or secure cookie
+      // Store token and user data in localStorage
       localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
       
       return data;
     } catch (err) {
@@ -42,6 +43,7 @@ export const useAuth = () => {
 
   const logout = useCallback(() => {
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
     // Redirect to login page
     window.location.href = '/login';
   }, []);
