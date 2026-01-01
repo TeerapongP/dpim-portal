@@ -9,6 +9,24 @@
 @import '@fortawesome/fontawesome-svg-core/styles.css';
 @import '@fortawesome/fontawesome-free/css/all.css';
 
+/* DPIM Custom Properties */
+:root {
+  --dpim-green: #0c5e36;
+  --dpim-gold: #ffc107;
+  --bg-overlay: rgba(12, 94, 54, 0.92);
+}
+
+body {
+  font-family: 'Sarabun', sans-serif;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 /* Bootstrap-like utility classes */
 .me-3 {
   margin-right: 1rem;
@@ -16,13 +34,6 @@
 
 .text-warning {
   color: #ffc107;
-}
-
-/* src/app/globals.css */
-body {
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 .p-menubar, .p-menubar-start, .p-menuitem-content, .p-menuitem-link {
