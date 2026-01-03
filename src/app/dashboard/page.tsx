@@ -326,13 +326,10 @@ export default function DashboardPage() {
             emptyFilterMessage="ไม่พบสถานะที่ค้นหา"
           />
           <Button
-            icon="pi pi-download"
-            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm w-full sm:w-auto"
+            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm w-full sm:w-auto flex items-center justify-center"
           >
-            <span className="hidden sm:inline">Export</span>
-            <span className="sm:hidden">
-              <i className="pi pi-download"></i>
-            </span>
+            <i className="pi pi-download mr-2"></i>
+            <span>Export</span>
           </Button>
         </div>
       </div>
