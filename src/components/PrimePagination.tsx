@@ -25,11 +25,24 @@ export default function PrimePagination({
   totalItems = 250
 }: PrimePaginationProps) {
   const [activePage, setActivePage] = useState(currentPage);
+  const [isMobile, setIsMobile] = useState(false);
 
   // Sync with external currentPage prop
   useEffect(() => {
     setActivePage(currentPage);
   }, [currentPage]);
+
+  // Check screen size
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
@@ -39,13 +52,16 @@ export default function PrimePagination({
   };
 
   const getVisiblePages = (): (number | string)[] => {
-    if (totalPages <= maxVisiblePages) {
+    // Use responsive maxVisiblePages
+    const responsiveMaxVisible = isMobile ? Math.min(maxVisiblePages, 3) : maxVisiblePages;
+    
+    if (totalPages <= responsiveMaxVisible) {
       // If total pages is less than max visible, show all pages
       return Array.from({ length: totalPages }, (_, i) => i + 1);
     }
 
     const pages: (number | string)[] = [];
-    const halfVisible = Math.floor(maxVisiblePages / 2);
+    const halfVisible = Math.floor(responsiveMaxVisible / 2);
 
     // Always show first page
     pages.push(1);
@@ -56,10 +72,10 @@ export default function PrimePagination({
     if (activePage <= halfVisible + 1) {
       // Near the beginning
       startPage = 2;
-      endPage = maxVisiblePages - 1;
+      endPage = responsiveMaxVisible - 1;
     } else if (activePage >= totalPages - halfVisible) {
       // Near the end
-      startPage = totalPages - maxVisiblePages + 2;
+      startPage = totalPages - responsiveMaxVisible + 2;
       endPage = totalPages - 1;
     } else {
       // In the middle
@@ -95,15 +111,15 @@ export default function PrimePagination({
   const visiblePages = getVisiblePages();
 
   return (
-    <div className="flex flex-col items-center gap-6 p-8 bg-gradient-to-br from-gray-50 to-white">
+    <div className="flex flex-col items-center gap-3 sm:gap-6 p-3 sm:p-8 bg-gradient-to-br from-gray-50 to-white">
       {/* Pagination Controls */}
-      <div className="flex items-center gap-2">
-        {/* First Page Button */}
+      <div className="flex items-center gap-1 sm:gap-2 flex-wrap justify-center">
+        {/* First Page Button - Hide on mobile when showFirstLast is false */}
         {showFirstLast && activePage > 1 && (
           <Button
             icon="pi pi-angle-double-left"
             onClick={() => handlePageChange(1)}
-            className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-500 text-white hover:from-teal-600 hover:to-emerald-600 hover:shadow-xl hover:scale-105 active:scale-95 shadow-lg transition-all duration-300"
+            className="w-8 h-8 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-gradient-to-br from-teal-500 to-emerald-500 text-white hover:from-teal-600 hover:to-emerald-600 hover:shadow-xl hover:scale-105 active:scale-95 shadow-lg transition-all duration-300"
             text={false}
             tooltip="หน้าแรก"
             tooltipOptions={{ position: 'top', className: 'bg-emerald-600 text-white text-xs px-2 py-1 rounded-lg' }}
@@ -112,24 +128,25 @@ export default function PrimePagination({
 
         {/* Previous Button */}
         <Button
-          label="Previous"
           icon="pi pi-chevron-left"
           onClick={() => handlePageChange(activePage - 1)}
           disabled={activePage === 1}
-          className={`px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-300 shadow-lg ${
+          className={`px-2 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm transition-all duration-300 shadow-lg ${
             activePage === 1
               ? 'bg-gray-300 text-gray-500 cursor-not-allowed shadow-none'
               : 'bg-gradient-to-r from-teal-400 to-teal-500 text-white hover:from-teal-500 hover:to-teal-600 hover:shadow-xl hover:scale-105 active:scale-95'
           }`}
           text={false}
-        />
+        >
+          <span className="hidden sm:inline ml-2">Previous</span>
+        </Button>
 
         {/* Page Numbers and Ellipsis */}
         {visiblePages.map((page, index) => {
           if (typeof page === 'string') {
             return (
-              <div key={`ellipsis-${index}`} className="flex items-center justify-center w-12 h-12 mx-1">
-                <span className="text-emerald-600 font-bold text-xl">⋯</span>
+              <div key={`ellipsis-${index}`} className="flex items-center justify-center w-8 h-8 sm:w-12 sm:h-12 mx-1">
+                <span className="text-emerald-600 font-bold text-sm sm:text-xl">⋯</span>
               </div>
             );
           }
@@ -137,39 +154,50 @@ export default function PrimePagination({
           return (
             <Button
               key={page}
-              label={page.toString()}
               onClick={() => handlePageChange(page)}
-              className={`w-12 h-12 rounded-xl font-bold text-sm transition-all duration-300 shadow-lg ${
+              className={`w-8 h-8 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl font-bold text-xs sm:text-sm transition-all duration-300 shadow-lg ${
                 page === activePage
                   ? 'bg-gradient-to-br from-emerald-600 to-green-700 text-white shadow-emerald-300 hover:shadow-emerald-400 hover:shadow-xl transform hover:scale-110'
                   : 'bg-gradient-to-br from-emerald-500 to-green-600 text-white hover:from-emerald-600 hover:to-green-700 hover:shadow-xl hover:scale-105 active:scale-95'
               }`}
               text={false}
-            />
+              style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center',
+                padding: '0',
+                minWidth: 'auto'
+              }}
+            >
+              <span className="flex items-center justify-center w-full h-full">
+                {page.toString()}
+              </span>
+            </Button>
           );
         })}
 
         {/* Next Button */}
         <Button
-          label="Next"
           icon="pi pi-chevron-right"
           iconPos="right"
           onClick={() => handlePageChange(activePage + 1)}
           disabled={activePage === totalPages}
-          className={`px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-300 shadow-lg ${
+          className={`px-2 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm transition-all duration-300 shadow-lg ${
             activePage === totalPages
               ? 'bg-gray-300 text-gray-500 cursor-not-allowed shadow-none'
               : 'bg-gradient-to-r from-teal-500 to-emerald-500 text-white hover:from-teal-600 hover:to-emerald-600 hover:shadow-xl hover:scale-105 active:scale-95'
           }`}
           text={false}
-        />
+        >
+          <span className="hidden sm:inline mr-2">Next</span>
+        </Button>
 
-        {/* Last Page Button */}
+        {/* Last Page Button - Hide on mobile when showFirstLast is false */}
         {showFirstLast && activePage < totalPages && (
           <Button
             icon="pi pi-angle-double-right"
             onClick={() => handlePageChange(totalPages)}
-            className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-500 text-white hover:from-teal-600 hover:to-emerald-600 hover:shadow-xl hover:scale-105 active:scale-95 shadow-lg transition-all duration-300"
+            className="w-8 h-8 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-gradient-to-br from-teal-500 to-emerald-500 text-white hover:from-teal-600 hover:to-emerald-600 hover:shadow-xl hover:scale-105 active:scale-95 shadow-lg transition-all duration-300"
             text={false}
             tooltip="หน้าสุดท้าย"
             tooltipOptions={{ position: 'top', className: 'bg-emerald-600 text-white text-xs px-2 py-1 rounded-lg' }}
@@ -179,21 +207,21 @@ export default function PrimePagination({
 
       {/* Enhanced Page Info */}
       {showPageInfo && (
-        <div className="flex items-center gap-6">
+        <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-6">
           {/* Page Info */}
-          <div className="flex items-center gap-3 px-4 py-2 bg-white rounded-full shadow-md border border-gray-100">
-            <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-            <i className="pi pi-file text-emerald-600 text-sm"></i>
-            <span className="text-gray-700 font-medium text-sm">
+          <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-1.5 sm:py-2 bg-white rounded-full shadow-md border border-gray-100">
+            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+            <i className="pi pi-file text-emerald-600 text-xs sm:text-sm"></i>
+            <span className="text-gray-700 font-medium text-xs sm:text-sm">
               หน้า {activePage} จาก {totalPages}
             </span>
           </div>
 
           {/* Total Items */}
-          <div className="flex items-center gap-3 px-4 py-2 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-full shadow-md border border-emerald-100">
-            <i className="pi pi-list text-emerald-600 text-sm"></i>
-            <span className="text-emerald-700 font-semibold text-sm">
-              รายการทั้งหมด {totalItems.toLocaleString()} รายการ
+          <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-full shadow-md border border-emerald-100">
+            <i className="pi pi-list text-emerald-600 text-xs sm:text-sm"></i>
+            <span className="text-emerald-700 font-semibold text-xs sm:text-sm">
+              {isMobile ? `${totalItems.toLocaleString()} รายการ` : `รายการทั้งหมด ${totalItems.toLocaleString()} รายการ`}
             </span>
           </div>
         </div>

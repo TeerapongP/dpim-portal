@@ -105,6 +105,7 @@ export default function DashboardPage() {
   const [filteredServers, setFilteredServers] = useState<any[]>([]);
   const [statusFilter, setStatusFilter] = useState('All');
   const [isClient, setIsClient] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   // Initialize servers only on client side
   useEffect(() => {
@@ -112,6 +113,16 @@ export default function DashboardPage() {
     const servers = generateServerData();
     setAllServers(servers);
     setFilteredServers(servers);
+
+    // Check if mobile screen
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640); // sm breakpoint
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   useEffect(() => {
@@ -291,22 +302,23 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
+    <div className="min-h-screen bg-gray-100 p-3 sm:p-6">
       {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 mb-6">
+        <div className="flex-1">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-800 flex items-center gap-2">
             <i className="pi pi-server text-red-500"></i>
-            รายงานสถานะ Server (Drill-Down)
+            <span className="hidden sm:inline">รายงานสถานะ Server (Drill-Down)</span>
+            <span className="sm:hidden">Server Status</span>
           </h1>
-          <p className="text-sm text-gray-600">ข้อมูล ณ วันที่ {currentTime}</p>
+          <p className="text-xs sm:text-sm text-gray-600 mt-1">ข้อมูล ณ วันที่ {currentTime}</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2 w-full lg:w-auto">
           <Dropdown 
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.value)}
             options={statusOptions}
-            className="w-64"
+            className="w-full sm:w-64"
             placeholder="เลือกสถานะ"
             showClear={statusFilter !== 'All'}
             filter
@@ -315,58 +327,62 @@ export default function DashboardPage() {
           />
           <Button
             icon="pi pi-download"
-            label="Export"
-            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm"
-          />
+            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm w-full sm:w-auto"
+          >
+            <span className="hidden sm:inline">Export</span>
+            <span className="sm:hidden">
+              <i className="pi pi-download"></i>
+            </span>
+          </Button>
         </div>
       </div>
 
 
       {/* Status Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
         <Card className="shadow-sm border-0">
           <div className="flex items-center">
-            <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mr-4">
-              <i className="pi pi-cloud text-green-600 text-xl"></i>
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 rounded-xl flex items-center justify-center mr-3 sm:mr-4">
+              <i className="pi pi-cloud text-green-600 text-lg sm:text-xl"></i>
             </div>
-            <div>
-              <h3 className="text-sm font-medium text-gray-600 mb-1">Cloud Server Status</h3>
-              <p className="text-xl font-bold text-green-600">Online ({onlinePercentage}%)</p>
-              <p className="text-xs text-gray-500">Node Status: {filteredStatusCounts.Normal}/{filteredStatusCounts.All}</p>
+            <div className="min-w-0 flex-1">
+              <h3 className="text-xs sm:text-sm font-medium text-gray-600 mb-1 truncate">Cloud Server Status</h3>
+              <p className="text-lg sm:text-xl font-bold text-green-600">Online ({onlinePercentage}%)</p>
+              <p className="text-xs text-gray-500 truncate">Node Status: {filteredStatusCounts.Normal}/{filteredStatusCounts.All}</p>
             </div>
           </div>
         </Card>
 
         <Card className="shadow-sm border-0">
           <div className="flex items-center">
-            <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mr-4">
-              <i className="pi pi-users text-blue-600 text-xl"></i>
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-xl flex items-center justify-center mr-3 sm:mr-4">
+              <i className="pi pi-users text-blue-600 text-lg sm:text-xl"></i>
             </div>
-            <div>
-              <h3 className="text-sm font-medium text-gray-600 mb-1">Active Directory</h3>
-              <p className="text-xl font-bold text-blue-600">Connected</p>
-              <p className="text-xs text-gray-500">AD Servers: {serviceTypeCounts['ACTIVE DIRECTORY'] || 0}</p>
+            <div className="min-w-0 flex-1">
+              <h3 className="text-xs sm:text-sm font-medium text-gray-600 mb-1 truncate">Active Directory</h3>
+              <p className="text-lg sm:text-xl font-bold text-blue-600">Connected</p>
+              <p className="text-xs text-gray-500 truncate">AD Servers: {serviceTypeCounts['ACTIVE DIRECTORY'] || 0}</p>
             </div>
           </div>
         </Card>
 
         <Card className="shadow-sm border-0">
           <div className="flex items-center">
-            <div className={`w-12 h-12 rounded-xl flex items-center justify-center mr-4 ${
+            <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center mr-3 sm:mr-4 ${
               averageLoad > 80 ? 'bg-red-100' : averageLoad > 60 ? 'bg-yellow-100' : 'bg-green-100'
             }`}>
-              <i className={`pi pi-chart-line text-xl ${
+              <i className={`pi pi-chart-line text-lg sm:text-xl ${
                 averageLoad > 80 ? 'text-red-600' : averageLoad > 60 ? 'text-yellow-600' : 'text-green-600'
               }`}></i>
             </div>
-            <div>
-              <h3 className="text-sm font-medium text-gray-600 mb-1">Average Load</h3>
-              <p className={`text-xl font-bold ${
+            <div className="min-w-0 flex-1">
+              <h3 className="text-xs sm:text-sm font-medium text-gray-600 mb-1 truncate">Average Load</h3>
+              <p className={`text-lg sm:text-xl font-bold ${
                 averageLoad > 80 ? 'text-red-600' : averageLoad > 60 ? 'text-yellow-600' : 'text-green-600'
               }`}>
                 {averageLoad}%
               </p>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-gray-500 truncate">
                 Performance: {averageLoad > 80 ? 'Critical' : averageLoad > 60 ? 'Warning' : 'Good'}
               </p>
             </div>
@@ -375,43 +391,44 @@ export default function DashboardPage() {
 
         <Card className="shadow-sm border-0">
           <div className="flex items-center">
-            <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center mr-4">
-              <i className="pi pi-exclamation-triangle text-red-600 text-xl"></i>
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-red-100 rounded-xl flex items-center justify-center mr-3 sm:mr-4">
+              <i className="pi pi-exclamation-triangle text-red-600 text-lg sm:text-xl"></i>
             </div>
-            <div>
-              <h3 className="text-sm font-medium text-gray-600 mb-1">System Alerts</h3>
-              <p className="text-xl font-bold text-red-600">{filteredStatusCounts.Critical + filteredStatusCounts.Warning} Warnings</p>
-              <p className="text-xs text-gray-500">Critical: {filteredStatusCounts.Critical}, Warning: {filteredStatusCounts.Warning}</p>
+            <div className="min-w-0 flex-1">
+              <h3 className="text-xs sm:text-sm font-medium text-gray-600 mb-1 truncate">System Alerts</h3>
+              <p className="text-lg sm:text-xl font-bold text-red-600">{filteredStatusCounts.Critical + filteredStatusCounts.Warning} Warnings</p>
+              <p className="text-xs text-gray-500 truncate">Critical: {filteredStatusCounts.Critical}, Warning: {filteredStatusCounts.Warning}</p>
             </div>
           </div>
         </Card>
       </div>
 
       {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
         {/* Server Status Distribution Chart */}
         <Card 
           title={
-            <div className="flex justify-between items-center">
-              <h3 className="text-lg font-semibold text-gray-800 flex items-center">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-800 flex items-center">
                 <i className="pi pi-chart-bar mr-2"></i>
-                การกระจายสถานะเซิร์ฟเวอร์
+                <span className="hidden sm:inline">การกระจายสถานะเซิร์ฟเวอร์</span>
+                <span className="sm:hidden">สถานะเซิร์ฟเวอร์</span>
                 {statusFilter !== 'All' && (
-                  <span className="ml-2 text-sm text-blue-600 bg-blue-100 px-2 py-1 rounded-full">
+                  <span className="ml-2 text-xs sm:text-sm text-blue-600 bg-blue-100 px-2 py-1 rounded-full">
                     {statusFilter}
                   </span>
                 )}
               </h3>
-              <div className="flex gap-2">
-                <button className="px-3 py-1 bg-gray-800 text-white text-xs rounded">Real-time</button>
-                <button className="px-3 py-1 bg-gray-200 text-gray-600 text-xs rounded hover:bg-gray-300">Daily</button>
-                <button className="px-3 py-1 bg-gray-200 text-gray-600 text-xs rounded hover:bg-gray-300">Weekly</button>
+              <div className="flex gap-1 sm:gap-2">
+                <button className="px-2 sm:px-3 py-1 bg-gray-800 text-white text-xs rounded">Real-time</button>
+                <button className="px-2 sm:px-3 py-1 bg-gray-200 text-gray-600 text-xs rounded hover:bg-gray-300">Daily</button>
+                <button className="px-2 sm:px-3 py-1 bg-gray-200 text-gray-600 text-xs rounded hover:bg-gray-300 hidden sm:block">Weekly</button>
               </div>
             </div>
           }
-          className="lg:col-span-2 shadow-sm border-0"
+          className="xl:col-span-2 shadow-sm border-0"
         >
-          <div className="h-64">
+          <div className="h-48 sm:h-64">
             <Bar
               data={{
                 labels: ['Normal', 'Warning', 'High Load', 'Critical', 'Maintenance'],
@@ -474,7 +491,10 @@ export default function DashboardPage() {
                       color: 'rgba(0, 0, 0, 0.1)'
                     },
                     ticks: {
-                      color: '#6b7280'
+                      color: '#6b7280',
+                      font: {
+                        size: window.innerWidth < 640 ? 10 : 12
+                      }
                     }
                   },
                   x: {
@@ -484,9 +504,10 @@ export default function DashboardPage() {
                     ticks: {
                       color: '#6b7280',
                       font: {
-                        size: 12,
+                        size: window.innerWidth < 640 ? 10 : 12,
                         weight: 'bold'
-                      }
+                      },
+                      maxRotation: window.innerWidth < 640 ? 45 : 0
                     }
                   }
                 }
@@ -498,11 +519,12 @@ export default function DashboardPage() {
         {/* Service Type Distribution */}
         <Card 
           title={
-            <h3 className="text-lg font-semibold text-gray-800 flex items-center">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-800 flex items-center">
               <i className="pi pi-chart-pie mr-2"></i>
-              ประเภทบริการ
+              <span className="hidden sm:inline">ประเภทบริการ</span>
+              <span className="sm:hidden">บริการ</span>
               {statusFilter !== 'All' && (
-                <span className="ml-2 text-sm text-blue-600 bg-blue-100 px-2 py-1 rounded-full">
+                <span className="ml-2 text-xs sm:text-sm text-blue-600 bg-blue-100 px-2 py-1 rounded-full">
                   {statusFilter}
                 </span>
               )}
@@ -510,7 +532,7 @@ export default function DashboardPage() {
           }
           className="shadow-sm border-0"
         >
-          <div className="h-64">
+          <div className="h-48 sm:h-64">
             <Doughnut
               data={{
                 labels: Object.keys(serviceTypeCounts).slice(0, 6),
@@ -545,10 +567,10 @@ export default function DashboardPage() {
                   legend: {
                     position: 'bottom',
                     labels: {
-                      padding: 20,
+                      padding: window.innerWidth < 640 ? 10 : 20,
                       usePointStyle: true,
                       font: {
-                        size: 11
+                        size: window.innerWidth < 640 ? 9 : 11
                       },
                       generateLabels: function(chart: any) {
                         const data = chart.data;
@@ -556,8 +578,10 @@ export default function DashboardPage() {
                           return data.labels.map((label: string, i: number) => {
                             const count = data.datasets[0].data[i] as number;
                             const percentage = ((count / filteredStatusCounts.All) * 100).toFixed(1);
+                            const shortLabel = window.innerWidth < 640 ? 
+                              label.split(' ')[0] : label;
                             return {
-                              text: `${label} (${percentage}%)`,
+                              text: `${shortLabel} (${percentage}%)`,
                               fillStyle: (data.datasets[0].backgroundColor as string[])[i],
                               strokeStyle: (data.datasets[0].borderColor as string[])[i],
                               lineWidth: 2,
@@ -596,14 +620,15 @@ export default function DashboardPage() {
       {/* Performance Trend Chart */}
       <Card 
         title={
-          <h3 className="text-lg font-semibold text-gray-800 flex items-center">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-800 flex items-center">
             <i className="pi pi-chart-line mr-2"></i>
-            แนวโน้มประสิทธิภาพระบบ
+            <span className="hidden sm:inline">แนวโน้มประสิทธิภาพระบบ</span>
+            <span className="sm:hidden">ประสิทธิภาพ</span>
           </h3>
         }
-        className="mb-8 shadow-sm border-0"
+        className="mb-6 sm:mb-8 shadow-sm border-0"
       >
-        <div className="h-64">
+        <div className="h-48 sm:h-64">
           <Line
             data={{
               labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '24:00'],
@@ -630,8 +655,8 @@ export default function DashboardPage() {
                   pointBackgroundColor: 'rgb(16, 185, 129)',
                   pointBorderColor: 'white',
                   pointBorderWidth: 2,
-                  pointRadius: 6,
-                  pointHoverRadius: 8,
+                  pointRadius: window.innerWidth < 640 ? 4 : 6,
+                  pointHoverRadius: window.innerWidth < 640 ? 6 : 8,
                   pointHoverBackgroundColor: 'rgb(16, 185, 129)',
                   pointHoverBorderColor: 'white',
                   pointHoverBorderWidth: 3
@@ -668,6 +693,9 @@ export default function DashboardPage() {
                   },
                   ticks: {
                     color: '#6b7280',
+                    font: {
+                      size: window.innerWidth < 640 ? 10 : 12
+                    },
                     callback: function(value: any) {
                       return value + '%';
                     }
@@ -678,7 +706,10 @@ export default function DashboardPage() {
                     color: 'rgba(0, 0, 0, 0.1)'
                   },
                   ticks: {
-                    color: '#6b7280'
+                    color: '#6b7280',
+                    font: {
+                      size: window.innerWidth < 640 ? 10 : 12
+                    }
                   }
                 }
               },
@@ -691,8 +722,8 @@ export default function DashboardPage() {
         </div>
         
         {/* Performance Summary */}
-        <div className="mt-4 flex justify-between items-center text-sm">
-          <div className="flex items-center gap-4">
+        <div className="mt-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 text-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 bg-green-500 rounded-full"></div>
               <span className="text-gray-600">ประสิทธิภาพเฉลี่ย: {100 - averageLoad}%</span>
@@ -706,7 +737,7 @@ export default function DashboardPage() {
               </span>
             </div>
           </div>
-          <div className="text-gray-500">
+          <div className="text-gray-500 text-xs sm:text-sm">
             อัปเดตล่าสุด: {currentTime}
           </div>
         </div>
@@ -714,68 +745,77 @@ export default function DashboardPage() {
 
       {/* Server Table */}
       <Card className="shadow-sm border-0 overflow-hidden">
-        <DataTable 
-          value={currentServers}
-          stripedRows
-          showGridlines
-          size="small"
-          className="p-datatable-sm"
-          emptyMessage={`ไม่พบข้อมูลเซิร์ฟเวอร์${statusFilter !== 'All' ? ` สำหรับสถานะ "${statusFilter}"` : ''}`}
-          loading={!isClient}
-          loadingIcon="pi pi-spin pi-spinner"
-          header={
-            <div className="flex justify-between items-center py-2">
-              <span className="text-gray-600 font-medium">
-                แสดงรายการ {currentServers.length > 0 ? startIndex + 1 : 0}-{Math.min(endIndex, filteredServers.length)} จาก {filteredServers.length} รายการ
-              </span>
-              <span className="text-gray-500 text-sm">
-                {itemsPerPage} รายการต่อหน้า
-              </span>
-            </div>
-          }
-        >
-          <Column 
-            field="name" 
-            header="SERVER NAME"
-            headerClassName="bg-gray-50 text-gray-600 font-semibold text-xs uppercase tracking-wider"
-            className="font-medium text-gray-900"
-            sortable
-          />
-          <Column 
-            field="serviceType" 
-            header="SERVICE TYPE"
-            headerClassName="bg-gray-50 text-gray-600 font-semibold text-xs uppercase tracking-wider"
-            body={serviceTypeTemplate}
-            sortable
-          />
-          <Column 
-            field="status" 
-            header="STATUS"
-            headerClassName="bg-gray-50 text-gray-600 font-semibold text-xs uppercase tracking-wider"
-            body={statusTemplate}
-            sortable
-          />
-          <Column 
-            field="lastUpdate" 
-            header="LAST UPDATE"
-            headerClassName="bg-gray-50 text-gray-600 font-semibold text-xs uppercase tracking-wider"
-            className="text-sm text-gray-600"
-            sortable
-          />
-          <Column 
-            field="load" 
-            header="LOAD"
-            headerClassName="bg-gray-50 text-gray-600 font-semibold text-xs uppercase tracking-wider"
-            body={loadTemplate}
-            sortable
-          />
-          <Column 
-            header="ACTION"
-            headerClassName="bg-gray-50 text-gray-600 font-semibold text-xs uppercase tracking-wider"
-            body={actionTemplate}
-            style={{ width: '200px' }}
-          />
-        </DataTable>
+        <div className="overflow-x-auto">
+          <DataTable 
+            value={currentServers}
+            stripedRows
+            showGridlines
+            size="small"
+            className="p-datatable-sm"
+            emptyMessage={`ไม่พบข้อมูลเซิร์ฟเวอร์${statusFilter !== 'All' ? ` สำหรับสถานะ "${statusFilter}"` : ''}`}
+            loading={!isClient}
+            loadingIcon="pi pi-spin pi-spinner"
+            header={
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 py-2">
+                <span className="text-gray-600 font-medium text-sm">
+                  แสดงรายการ {currentServers.length > 0 ? startIndex + 1 : 0}-{Math.min(endIndex, filteredServers.length)} จาก {filteredServers.length} รายการ
+                </span>
+                <span className="text-gray-500 text-xs sm:text-sm">
+                  {itemsPerPage} รายการต่อหน้า
+                </span>
+              </div>
+            }
+            scrollable
+            scrollHeight="flex"
+          >
+            <Column 
+              field="name" 
+              header="SERVER NAME"
+              headerClassName="bg-gray-50 text-gray-600 font-semibold text-xs uppercase tracking-wider"
+              className="font-medium text-gray-900 text-sm"
+              sortable
+              style={{ minWidth: '120px' }}
+            />
+            <Column 
+              field="serviceType" 
+              header="SERVICE TYPE"
+              headerClassName="bg-gray-50 text-gray-600 font-semibold text-xs uppercase tracking-wider"
+              body={serviceTypeTemplate}
+              sortable
+              style={{ minWidth: '140px' }}
+            />
+            <Column 
+              field="status" 
+              header="STATUS"
+              headerClassName="bg-gray-50 text-gray-600 font-semibold text-xs uppercase tracking-wider"
+              body={statusTemplate}
+              sortable
+              style={{ minWidth: '120px' }}
+            />
+            <Column 
+              field="lastUpdate" 
+              header="LAST UPDATE"
+              headerClassName="bg-gray-50 text-gray-600 font-semibold text-xs uppercase tracking-wider"
+              className="text-xs sm:text-sm text-gray-600"
+              sortable
+              style={{ minWidth: '140px' }}
+            />
+            <Column 
+              field="load" 
+              header="LOAD"
+              headerClassName="bg-gray-50 text-gray-600 font-semibold text-xs uppercase tracking-wider"
+              body={loadTemplate}
+              sortable
+              style={{ minWidth: '120px' }}
+            />
+            <Column 
+              header="ACTION"
+              headerClassName="bg-gray-50 text-gray-600 font-semibold text-xs uppercase tracking-wider"
+              body={actionTemplate}
+              style={{ minWidth: '180px', width: '180px' }}
+            />
+          </DataTable>
+        </div>
         
         {/* Beautiful PrimeReact Pagination Component */}
         <PrimePagination
@@ -783,8 +823,8 @@ export default function DashboardPage() {
           totalPages={totalPages}
           totalItems={filteredServers.length}
           onPageChange={handlePageChange}
-          showFirstLast={true}
-          maxVisiblePages={5}
+          showFirstLast={!isMobile}
+          maxVisiblePages={isMobile ? 3 : 5}
           showPageInfo={true}
           itemsPerPage={itemsPerPage}
         />
